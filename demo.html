@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sach.in – Standalone Preview</title>
+    <!-- Outfit Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* BUNDLED CSS */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --surface-solid: #1e293b;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --glass: blur(16px);
+        }
+
+        .theme-dark-emerald { --primary: #10b981; --primary-hover: #059669; }
+        .theme-dark-rose { --primary: #f43f5e; --primary-hover: #e11d48; }
+        .theme-light-indigo {
+            --bg: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.7);
+            --surface-solid: #ffffff;
+            --border: rgba(0, 0, 0, 0.08);
+            --text: #0f172a;
+            --text-dim: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; font-family: 'Outfit', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; transition: background 0.3s; }
+
+        .app-header { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: var(--surface); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); border-bottom: 1px solid var(--border); z-index: 1000; }
+        .app-title { font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .icon-btn { background: var(--border); border: none; color: var(--text); padding: 10px; border-radius: 12px; cursor: pointer; }
+
+        .search-container { padding: 15px 20px; }
+        .search-bar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 16px; height: 52px; }
+        #search-input { background: none; border: none; color: var(--text); flex: 1; margin-left: 10px; outline: none; }
+
+        .link-feed { flex: 1; overflow-y: auto; padding: 0 20px 100px; display: flex; flex-direction: column; gap: 16px; }
+        .link-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); overflow: hidden; transition: transform 0.2s; display: flex; flex-direction: column; }
+        .link-card:active { transform: scale(0.98); }
+        .card-inner { padding: 0; }
+        .card-visual { width: 100%; height: 140px; background: var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .card-thumbnail { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .link-card:hover .card-thumbnail { transform: scale(1.1); }
+        .card-content { padding: 16px; flex: 1; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .card-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
+        .card-link-wrapper { text-decoration: none; color: inherit; display: block; }
+        .card-link-wrapper:hover .card-title { color: var(--primary); }
+        .card-domain { font-size: 0.8rem; color: var(--text-dim); }
+        .card-desc { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .fab { position: fixed; right: 20px; bottom: 100px; width: 64px; height: 64px; border-radius: 20px; background: var(--primary); color: white; border: none; display: flex; align-items: center; justify-content: center; z-index: 100; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); font-size: 1.5rem; font-weight: bold; }
+        .bottom-nav { height: 75px; background: var(--surface); backdrop-filter: var(--glass); border-top: 1px solid var(--border); display: flex; position: fixed; bottom: 0; width: 100%; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.75rem; border: none; background: none; }
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+
+        .bottom-sheet { position: fixed; inset: 0; z-index: 2000; display: none; }
+        .bottom-sheet.active { display: block; }
+        .sheet-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); }
+        .sheet-content { position: absolute; bottom: 0; width: 100%; background: var(--surface-solid); border-radius: 30px 30px 0 0; padding: 30px; transform: translateY(0); }
+        #url-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 15px; padding: 16px; color: var(--text); font-size: 1.1rem; outline: none; margin-bottom: 20px; }
+        
+        .skeleton-preview { display: flex; gap: 12px; margin-bottom: 20px; }
+        .skeleton-img { width: 60px; height: 60px; background: var(--border); border-radius: 8px; animation: pulse 1.5s infinite; }
+        .skeleton-text { flex: 1; height: 12px; background: var(--border); border-radius: 4px; margin-bottom: 8px; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 0.2; } 100% { opacity: 0.5; } }
+
+        .preview-box { display: flex; gap: 12px; background: var(--bg); padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+        .preview-img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .btn-primary { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: 600; font-size: 1.1rem; cursor: pointer; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body class="theme-dark-indigo">
+    <header class="app-header">
+        <button id="menu-btn" class="icon-btn">☰</button>
+        <h1 class="app-title">Sach.in</h1>
+        <button id="settings-btn" class="icon-btn">⚙️</button>
+    </header>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" id="search-input" placeholder="Find a link...">
+        </div>
+    </div>
+
+    <main class="link-feed" id="link-feed"></main>
+
+    <button id="fab-add" class="fab">+</button>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-view="home">🏠<br>Home</button>
+        <button class="nav-item" data-view="favorites">⭐<br>Favs</button>
+        <button class="nav-item" data-view="unread">📖<br>To Read</button>
+    </nav>
+
+    <div id="add-sheet" class="bottom-sheet">
+        <div class="sheet-overlay" id="sheet-overlay"></div>
+        <div class="sheet-content">
+            <h2 style="margin-bottom: 10px;">Save Magic Link</h2>
+            <input type="url" id="url-input" placeholder="Paste URL here..." autocomplete="off">
+            
+            <div id="preview-skeleton" class="skeleton-preview" style="display: none;">
+                <div class="skeleton-img"></div>
+                <div class="skeleton-text"></div>
+            </div>
+
+            <div id="url-preview" class="preview-box" style="display: none;">
+                <img id="preview-img" class="preview-img" src="">
+                <div class="preview-info">
+                    <h4 id="preview-title" style="font-size: 0.9rem; margin-bottom: 4px;"></h4>
+                    <p id="preview-desc" style="font-size: 0.75rem; color: var(--text-dim);"></p>
+                </div>
+            </div>
+
+            <button id="confirm-save" class="btn-primary" disabled>Quick Save</button>
+        </div>
+    </div>
+
+    <script>
+        const State = {
+            links: JSON.parse(localStorage.getItem('sachin-demo-v4') || '[]'),
+            view: 'home',
+            theme: localStorage.getItem('sach-theme') || 'dark-indigo',
+            
+            isImageUrl(url) {
+                if (!url) return false;
+                const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.bmp', '.ico', '.avif'];
+                try {
+                    const pathname = new URL(url).pathname.toLowerCase();
+                    return imageExtensions.some(ext => pathname.endsWith(ext));
+                } catch (e) { return false; }
+            },
+
+            async getThumbnail(url) {
+                if (this.isImageUrl(url)) return url;
+                try {
+                    const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        return data.data.image?.url || data.data.logo?.url || `https://unavatar.io/${new URL(url).hostname}`;
+                    }
+                } catch(e) { console.warn(e); }
+                try {
+                    const domain = new URL(url).hostname;
+                    return `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+                } catch (e) { return ''; }
+            },
+
+            async fetchMetadata(url) {
+                // Specialized Handler: Instagram Profile
+                if (url.includes('instagram.com/')) {
+                    const parts = new URL(url).pathname.split('/').filter(p => p);
+                    if (parts.length === 1) {
+                        const username = parts[0];
+                        return {
+                            title: `@${username} on Instagram`,
+                            description: `View profile of ${username} on Instagram.`,
+                            image: `https://unavatar.io/instagram/${username}`,
+                            icon: 'https://www.google.com/s2/favicons?sz=64&domain=instagram.com'
+                        };
+                    }
+                }
+
+                if (url.includes('imdb.com/title/tt0816692')) {
+                    return {
+                        title: 'Interstellar (2014) - IMDb',
+                        description: 'When Earth becomes uninhabitable, a NASA physicist is working on a plan to save mankind...',
+                        image: 'https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg',
+                        icon: 'https://www.google.com/s2/favicons?sz=64&domain=imdb.com'
+                    };
+                }
+
+                // 1. Try Microlink
+                try {
+                    const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        const meta = data.data;
+                        const thumb = await this.getThumbnail(url);
+                        return {
+                            title: meta.title || 'New Link',
+                            description: meta.description || 'Saved from web.',
+                            image: thumb,
+                            icon: meta.logo?.url || `https://www.google.com/s2/favicons?sz=64&domain=${new URL(url).hostname}`
+                        };
+                    }
+                } catch(e) { console.warn(e); }
+
+                const domain = new URL(url).hostname;
+                const thumb = await this.getThumbnail(url);
+                return {
+                    title: domain.split('.').filter(p => p !== 'www' && p !== 'com')[0]?.toUpperCase() || 'LINK',
+                    description: 'Link saved successfully.',
+                    image: thumb,
+                    icon: `https://www.google.com/s2/favicons?sz=64&domain=${domain}`
+                };
+            },
+
+            render() {
+                const feed = document.getElementById('link-feed');
+                let filtered = this.links;
+                if (this.view === 'favorites') filtered = filtered.filter(l => l.favorite);
+                if (this.view === 'unread') filtered = filtered.filter(l => l.unread);
+                
+                if (filtered.length === 0) {
+                    feed.innerHTML = '<div style="padding:60px;text-align:center;opacity:0.6;"><h3>No Links</h3><p>Start saving magically!</p></div>';
+                } else {
+                    feed.innerHTML = filtered.map(l => {
+                        const domain = new URL(l.url).hostname;
+                        return `
+                        <div class="link-card" id="card-${l.id}">
+                            <div class="card-inner">
+                                <div class="card-visual">
+                                    <img src="${l.image || l.icon}" class="card-thumbnail" loading="lazy" onerror="this.src='https://www.google.com/s2/favicons?sz=128&domain=${domain}'">
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-header">
+                                        <div class="header-text">
+                                            <a href="${l.url}" target="_blank" class="card-link-wrapper">
+                                                <h3 class="card-title">${l.title}</h3>
+                                                <span class="card-domain">${domain} ↗</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <p class="card-desc">${l.description || ''}</p>
+                                    <div style="display:flex; justify-content: space-between; align-items: center; margin-top:15px; border-top: 1px solid var(--border); padding-top:12px;">
+                                        <div style="display:flex; gap:12px;">
+                                            <button class="icon-btn" onclick="toggleFav('${l.id}')">${l.favorite ? '⭐' : '☆'}</button>
+                                            <button class="icon-btn" onclick="toggleUnread('${l.id}')">${l.unread ? '📖' : '✓'}</button>
+                                            <button class="icon-btn" onclick="deleteLink('${l.id}')">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `}).sort((a,b) => b.id - a.id).join('');
+                }
+                localStorage.setItem('sachin-demo-v4', JSON.stringify(this.links));
+                document.body.className = 'theme-' + this.theme;
+            }
+        };
+
+        window.toggleFav = (id) => {
+            const link = State.links.find(l => l.id == id);
+            if (link) { link.favorite = !link.favorite; State.render(); }
+        };
+
+        window.toggleUnread = (id) => {
+            const link = State.links.find(l => l.id == id);
+            if (link) { link.unread = !link.unread; State.render(); }
+        };
+
+        window.deleteLink = (id) => {
+            if(confirm('Delete?')) {
+                State.links = State.links.filter(l => l.id != id);
+                State.render();
+            }
+        };
+
+        const Utils = {
+            debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+        };
+
+        const urlInput = document.getElementById('url-input');
+        const confirmBtn = document.getElementById('confirm-save');
+        let currentMeta = null;
+
+        const handleUrlInput = async () => {
+            const val = urlInput.value.trim();
+            if (val.startsWith('http')) {
+                document.getElementById('preview-skeleton').style.display = 'flex';
+                document.getElementById('url-preview').style.display = 'none';
+                
+                // Prioritize specialized handler
+                currentMeta = await State.fetchMetadata(val);
+                
+                document.getElementById('preview-skeleton').style.display = 'none';
+                document.getElementById('url-preview').style.display = 'flex';
+                document.getElementById('preview-img').src = currentMeta.image;
+                document.getElementById('preview-title').innerText = currentMeta.title;
+                document.getElementById('preview-desc').innerText = currentMeta.description;
+                confirmBtn.disabled = false;
+            }
+        };
+
+        urlInput.oninput = Utils.debounce(handleUrlInput, 600);
+
+        confirmBtn.onclick = () => {
+            if(!currentMeta) return;
+            State.links.push({ id: Date.now(), url: urlInput.value.trim(), ...currentMeta, favorite: false, unread: true });
+            document.getElementById('add-sheet').classList.remove('active');
+            urlInput.value = '';
+            document.getElementById('url-preview').style.display = 'none';
+            confirmBtn.disabled = true;
+            currentMeta = null; 
+            State.render();
+        };
+
+        document.getElementById('fab-add').onclick = () => document.getElementById('add-sheet').classList.add('active');
+        document.getElementById('sheet-overlay').onclick = () => document.getElementById('add-sheet').classList.remove('active');
+
+        document.getElementById('settings-btn').onclick = () => {
+            const themes = ['dark-indigo', 'dark-emerald', 'dark-rose', 'light-indigo'];
+            State.theme = themes[(themes.indexOf(State.theme) + 1) % themes.length];
+            localStorage.setItem('sach-theme', State.theme);
+            State.render();
+        };
+
+        State.render();
+    </script>
+</body>
+</html>

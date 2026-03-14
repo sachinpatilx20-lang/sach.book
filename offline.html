@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sach.in – Offline</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .icon { font-size: 80px; margin-bottom: 20px; }
+        h1 { font-size: 2rem; margin-bottom: 10px; }
+        p { color: #94a3b8; max-width: 300px; line-height: 1.5; }
+        .btn {
+            margin-top: 30px;
+            padding: 14px 28px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>Don't worry, your saved links are safe. We'll show you local content when you reconnect.</p>
+    <button class="btn" onclick="window.location.reload()">Retry Connection</button>
+</body>
+</html>

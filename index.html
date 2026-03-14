@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sach.in – Advanced URL Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    
+    <!-- PWA Optimized Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2881/2881031.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark-indigo">
+    <div id="side-drawer" class="drawer" hidden>
+        <div class="drawer-overlay"></div>
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <h2>Sach.in Menu</h2>
+                <button id="close-drawer" class="icon-btn">✕</button>
+            </div>
+            <div class="drawer-body">
+                <section class="drawer-section">
+                    <h3>Data Management</h3>
+                    <button id="export-btn" class="drawer-link">📤 Export JSON</button>
+                    <button id="import-btn" class="drawer-link">📥 Import JSON</button>
+                    <input type="file" id="import-input" accept=".json" hidden>
+                </section>
+                <section class="drawer-section">
+                    <h3>Analytics</h3>
+                    <div id="stats-container" class="stats-grid">
+                        <div class="stat-card"><span id="stat-total">0</span><label>Links</label></div>
+                        <div class="stat-card"><span id="stat-favs">0</span><label>Favs</label></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="global-loader" class="loader-overlay" hidden>
+        <div class="spinner"></div>
+    </div>
+
+    <header class="app-header">
+        <button id="menu-btn" class="icon-btn" aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <h1 class="app-title">Sach.in</h1>
+        <button id="settings-btn" class="icon-btn" aria-label="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+    </header>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Find a link..." aria-label="Search">
+            <button id="clear-search" class="clear-btn" hidden>&times;</button>
+        </div>
+    </div>
+
+    <div id="bulk-bar" class="bulk-action-bar" hidden>
+        <span id="bulk-count">0 selected</span>
+        <div class="bulk-actions">
+            <button id="bulk-fav" class="icon-btn">⭐</button>
+            <button id="bulk-read" class="icon-btn">📖</button>
+            <button id="bulk-delete" class="icon-btn danger">🗑️</button>
+            <button id="bulk-close" class="icon-btn">✕</button>
+        </div>
+    </div>
+
+    <main id="app-content">
+        <div id="filter-bar" class="filter-bar">
+            <div class="filter-chip active" data-view="home">All Library</div>
+            <div class="filter-chip" data-view="favorites">Favorites</div>
+            <div class="filter-chip" data-view="unread">To Read</div>
+            <div class="filter-chip" data-view="collections">Folders</div>
+        </div>
+
+        <div id="link-feed" class="link-feed">
+            <!-- Dynamic Modular Cards -->
+        </div>
+    </main>
+
+    <button id="fab-add" class="fab" aria-label="Add Link">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-view="home" aria-label="Home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-view="favorites" aria-label="Favorites">
+            <span class="nav-icon">⭐</span>
+            <span class="nav-label">Favorites</span>
+        </button>
+        <button class="nav-item" data-view="unread" aria-label="To Read">
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">Unread</span>
+        </button>
+        <button class="nav-item" data-view="collections" aria-label="Collections">
+            <span class="nav-icon">📁</span>
+            <span class="nav-label">Folders</span>
+        </button>
+    </nav>
+
+    <!-- UI Components -->
+    <div id="add-sheet" class="bottom-sheet" hidden>
+        <div class="sheet-overlay"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+            <h2 class="sheet-title">Save Magic Link</h2>
+            <div class="input-group">
+                <input type="url" id="url-input" placeholder="Paste URL here..." autocomplete="off">
+                <div id="preview-skeleton" class="skeleton-preview" hidden>
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
+                </div>
+                <div id="url-preview" class="url-preview" hidden>
+                    <img id="preview-img" src="" alt="Preview">
+                    <div class="preview-info">
+                        <h3 id="preview-title"></h3>
+                        <p id="preview-desc"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="sheet-actions">
+                <button id="cancel-add" class="btn-secondary">Discard</button>
+                <button id="confirm-save" class="btn-primary" disabled>Quick Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production Entry -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
